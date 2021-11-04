@@ -88,6 +88,12 @@ public class LZW {
                     break;
                 }
             }
+
+            // Last character is sometimes left out
+            if(str.length() - i == 1) {
+                tags.add((byte) str.charAt(i));
+                break;
+            }
         }
 
         byte[] bytes = new byte[tags.size()];
@@ -98,6 +104,44 @@ public class LZW {
     }
 
     private static String decompress(byte[] input) {
-        return null;
+        StringBuilder decompressed = new StringBuilder();
+        ArrayList<String> dictionary = new ArrayList<>();
+
+        StringBuilder nextDic = new StringBuilder();
+        nextDic.append((char) input[0]);
+        decompressed.append((char) input[0]);
+        for (int i = 1; i < input.length; i++) {
+            // Reset the dictionary
+            if (dictionary.size() == 128) {
+                dictionary.clear();
+            }
+
+            int currentTag = Byte.toUnsignedInt(input[i]) - 128;
+
+            if(currentTag < 0) {
+                nextDic.append((char) input[i]);
+                decompressed.append((char) input[i]);
+                dictionary.add(nextDic.toString());
+
+                nextDic = new StringBuilder();
+                nextDic.append((char) input[i]);
+            }
+            else {
+                if(currentTag >= dictionary.size()) {
+                    nextDic.append(nextDic.substring(0, 1));
+                    decompressed.append(nextDic);
+                }
+                else {
+                    nextDic.append(dictionary.get(currentTag).charAt(0));
+                    decompressed.append(dictionary.get(currentTag));
+                }
+                dictionary.add(nextDic.toString());
+
+                nextDic = new StringBuilder();
+                nextDic.append(dictionary.get(currentTag));
+            }
+        }
+
+        return decompressed.toString();
     }
 }
