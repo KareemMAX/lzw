@@ -63,28 +63,28 @@ public class LZW {
                 dictionary.clear();
             }
 
-            int dictionaryIndex = 0;
+            int dictionaryIndex = -1;
             StringBuilder temp_str = new StringBuilder();
-            for (int j = i; j < str.length(); j++){
+            temp_str.append(str.charAt(i));
+            for (int j = i + 1; j < str.length(); j++){
                 temp_str.append(str.charAt(j));
                 if (dictionary.contains(temp_str.toString())) {
                     dictionaryIndex = dictionary.indexOf(temp_str.toString());
                     if (j == str.length() - 1) {
-                        byte tag = (byte) (dictionaryIndex + 127);
+                        byte tag = (byte) (dictionaryIndex + 128);
                         tags.add(tag);
                         i += temp_str.length();
                     }
                 }
                 else {
-                    char next = temp_str.charAt(temp_str.length() - 1);
                     dictionary.add(temp_str.toString());
 
-                    byte tag = (byte) (dictionaryIndex + 127);
-                    if (dictionaryIndex == 0) {
-                        tag = (byte) next;
+                    byte tag = (byte) (dictionaryIndex + 128);
+                    if (dictionaryIndex == -1) {
+                        tag = (byte) str.charAt(i);
                     }
                     tags.add(tag);
-                    i += temp_str.length();
+                    i += temp_str.length() - 1;
                     break;
                 }
             }
